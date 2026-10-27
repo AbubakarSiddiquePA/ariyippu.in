@@ -1,0 +1,18 @@
+﻿import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+const base='http://127.0.0.1:8787';
+try{
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});page.on('dialog',d=>d.accept());const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base+'/admin');await page.locator('#studio').waitFor({state:'visible'});
+ const image=await page.evaluate(async()=>{const c=document.createElement('canvas');c.width=200;c.height=100;const x=c.getContext('2d');x.fillStyle='#164e38';x.fillRect(0,0,200,100);x.fillStyle='#fff';x.fillText(crypto.randomUUID(),5,50);return Array.from(new Uint8Array(await (await new Promise(r=>c.toBlob(r,'image/png'))).arrayBuffer()));});
+ const upload=await page.request.post(base+'/api/admin/upload',{headers:{origin:base,'content-type':'image/png'},data:Buffer.from(image)});assert.equal(upload.status(),200);const photo=await upload.json();
+ const a={slug:'delete-ui-'+Date.now(),en:{title:'Disposable deletion test',subtitle:'',description:'Test data only',caption:'',blocks:[]},ml:{title:'',blocks:[]},cover:photo.url,status:'draft'};
+ const saved=await (await page.request.post(base+'/api/admin/articles',{headers:{origin:base},data:a})).json();assert.ok(saved.id);
+ await page.reload();await page.locator('#list button').filter({hasText:a.en.title}).click();await page.locator('.settings').evaluate(e=>e.open=true);await page.locator('#deletePhoto').click();await page.locator('#status').filter({hasText:'Photo permanently deleted from storage.'}).waitFor();assert.equal((await page.request.get(base+photo.url.replace('/media/','/api/admin/photo/'))).status(),404);
+ await page.locator('#title').fill('Disposable updated deletion test');await page.locator('#save').click();await page.locator('#status').filter({hasText:'Draft saved.'}).waitFor();const all=await (await page.request.get(base+'/api/admin/articles')).json();const updated=all.find(x=>x.id===saved.id);assert.equal(updated.en.title,'Disposable updated deletion test');assert.equal(updated.cover,'');
+ await page.locator('#deleteArticleZone').scrollIntoViewIfNeeded();await page.screenshot({path:'admin-delete-check.png',fullPage:true});await page.locator('#deleteArticle').click();await page.locator('#status').filter({hasText:'Article permanently deleted.'}).waitFor();const after=await (await page.request.get(base+'/api/admin/articles')).json();assert.ok(!after.find(x=>x.id===saved.id));
+ const resurrect=await page.request.post(base+'/api/admin/articles',{headers:{origin:base},data:updated});assert.equal(resurrect.status(),409);
+ // Full deletion also clears an attached, unshared photo from local R2.
+ const again=await (await page.request.post(base+'/api/admin/upload',{headers:{origin:base,'content-type':'image/png'},data:Buffer.from(image)})).json();const second={...a,slug:a.slug+'-second',cover:again.url};const secondSaved=await (await page.request.post(base+'/api/admin/articles',{headers:{origin:base},data:second})).json();const removed=await (await page.request.post(base+'/api/admin/delete-article',{headers:{origin:base},data:{id:secondSaved.id,version:secondSaved.version}})).json();assert.equal(removed.photoDeleted,true);assert.equal((await page.request.get(base+again.url.replace('/media/','/api/admin/photo/'))).status(),404);assert.deepEqual(errors,[]);
+ console.log(JSON.stringify({photoDeletedFromStorage:true,articleUpdated:true,articleDeleted:true,wholeArticleDeletesPhoto:true,staleEditorCannotRestore:true,browserErrors:errors}));
+}finally{await browser.close()}

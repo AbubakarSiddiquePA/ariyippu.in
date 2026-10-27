@@ -1,0 +1,46 @@
+{
+  "name": "crimson-salad-f0e5",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-23",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/admin",
+      "/admin/*",
+      "/api/*",
+      "/read/*",
+      "/media/*",
+      "/admin-login"
+    ]
+  },
+  "vars": {
+    "ADMIN_EMAIL": "abubakarsiddiqueworkdev@gmail.com",
+    "TRANSLATION_PROVIDER": "mymemory",
+    "AUTH_MODE": "password",
+    "PHOTO_PROVIDER": "imagekit",
+    "IMAGEKIT_URL_ENDPOINT": "https://ik.imagekit.io/ariyippu"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ariyippu-articles",
+      "database_id": "71d334b3-b820-4c59-82f9-3e29fd8bbb3f"
+    }
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "account_id": "1720e1ff6abed661b435411942124b68",
+  "routes": [
+    {
+      "pattern": "ariyippu.in",
+      "custom_domain": true
+    }
+  ],
+  "secrets": {
+    "required": [
+      "ADMIN_PASSWORD_HASH",
+      "IMAGEKIT_PRIVATE_KEY"
+    ]
+  }
+}

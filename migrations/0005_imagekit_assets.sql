@@ -1,0 +1,1 @@
+﻿CREATE TABLE IF NOT EXISTS media_assets(storage_key TEXT PRIMARY KEY,file_id TEXT NOT NULL UNIQUE,url TEXT NOT NULL,bytes INTEGER NOT NULL,content_type TEXT NOT NULL,created_at TEXT NOT NULL);

@@ -1,0 +1,4 @@
+﻿import {readFileSync,writeFileSync} from 'node:fs';
+import {join} from 'node:path';
+const path=join(process.env.APPDATA,'xdg.config','.wrangler','config','default.toml');const token=readFileSync(path,'utf8').match(/^oauth_token\s*=\s*"([^"]+)"/m)?.[1];if(!token)throw Error('Cloudflare login token was not found.');
+const config=JSON.parse(readFileSync('wrangler.jsonc','utf8'));const url='https://api.cloudflare.com/client/v4/accounts/'+config.account_id+'/workers/domains';const response=await fetch(url,{headers:{Authorization:'Bearer '+token}});const data=await response.json();if(!response.ok||!data.success)throw Error('Could not inspect custom domains.');const domains=data.result.filter(d=>d.service===config.name);writeFileSync('.previous-worker-domains.json',JSON.stringify(domains,null,2));console.log(JSON.stringify(domains.map(d=>({hostname:d.hostname,service:d.service,environment:d.environment}))));

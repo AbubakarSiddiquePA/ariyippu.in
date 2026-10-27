@@ -1,0 +1,20 @@
+{
+  "/": 200,
+  "/businesses": 200,
+  "/rayyummas-kitchen": 200,
+  "/zayvia-care": 200,
+  "/pricing": 200,
+  "/articles": 200,
+  "/read/modi-article": 200,
+  "unauthenticatedApiBlocked": true,
+  "loginPageStatus": 401,
+  "loginWorks": true,
+  "secureHttpOnlySession": true,
+  "migratedPhotoWorks": true,
+  "livePhotoUpload": true,
+  "draftSave": true,
+  "draftPrivacy": true,
+  "articleAndPhotoDeletion": true,
+  "logoutInvalidatesSession": true,
+  "browserErrors": []
+}

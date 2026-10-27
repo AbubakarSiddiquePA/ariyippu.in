@@ -1,0 +1,16 @@
+{
+  "name": "ariyippu-article-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check worker.mjs && node --test --experimental-test-isolation=none tests.mjs",
+    "dev": "wrangler dev --config wrangler.local.jsonc --ip 127.0.0.1 --port 8787",
+    "deploy": "node check-production.mjs && wrangler deploy",
+    "check:browser": "node browser-check.mjs",
+    "check:production": "node check-production.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1",
+    "wrangler": "^4.0.0"
+  }
+}
